@@ -56,6 +56,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int rtime;                   // Ticks spent in RUNNING
+  int wtime;                   // Ticks spent in RUNNABLE
   int priority;                // MLFQ_HIGH or MLFQ_LOW
   int slice_ticks;             // Ticks consumed in the current quantum
 };

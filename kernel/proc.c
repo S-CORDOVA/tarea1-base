@@ -88,6 +88,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->rtime = 0;
+  p->wtime = 0;
   p->priority = MLFQ_HIGH;
   p->slice_ticks = 0;
 
@@ -476,6 +478,25 @@ wakeup(void *chan)
 {
   acquire(&ptable.lock);
   wakeup1(chan);
+  release(&ptable.lock);
+}
+
+// Update accumulated CPU and runnable waiting time.
+// Called from the timer interrupt without ptable.lock held.
+void
+updateproctimes(void)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNING)
+      p->rtime++;
+    else if(p->state == RUNNABLE)
+      p->wtime++;
+  }
+
   release(&ptable.lock);
 }
 
