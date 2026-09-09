@@ -532,11 +532,40 @@ getprocs(struct procinfo *buf, int max)
 }
 
 // Called from the timer interrupt, without ptable.lock held.
-// TODO(Part 2): account for the running process quantum and implement
-// the periodic priority boost.
 void
 mlfq_tick(void)
 {
+  struct proc *p;
+  static int ticks_since_boost = 0;
+
+  acquire(&ptable.lock);
+  ticks_since_boost++;
+
+  if(ticks_since_boost == MLFQ_BOOST_INTERVAL){
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != UNUSED){
+        p->priority = MLFQ_HIGH;
+        p->slice_ticks = 0;
+      }
+    }
+    ticks_since_boost = 0;
+  } else {
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state == RUNNING)
+        break;
+    }
+    if(p < &ptable.proc[NPROC]){
+      p->slice_ticks++;
+      int quantum = (p->priority == MLFQ_HIGH) ? QUANTUM_HIGH : QUANTUM_LOW;
+      if(p->slice_ticks >= quantum){
+        if(p->priority == MLFQ_HIGH){
+          p->priority = MLFQ_LOW;
+        }
+        p->slice_ticks = 0;
+      }
+    }
+  }
+  release(&ptable.lock);
 }
 
 // Kill the process with the given pid.
