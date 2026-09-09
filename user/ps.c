@@ -39,15 +39,16 @@ main(int argc, char *argv[])
     exit();
   }
 
-  printf(1, "PID\tPPID\tSTATE\t\tCPU\tWAIT\tNAME\n");
+  printf(1, "PID\tPPID\tSTATE\t\tCPU\tWAIT\tPRIO\tNAME\n");
 
   for(i = 0; i < n; i++){
-    printf(1, "%d\t%d\t%s\t%d\t%d\t%s\n",
+    printf(1, "%d\t%d\t%s\t%d\t%d\t%d\t%s\n",
            procs[i].pid,
            procs[i].ppid,
            state_name(procs[i].state),
            procs[i].rtime,
            procs[i].wtime,
+           procs[i].priority,
            procs[i].name);
   }
 
