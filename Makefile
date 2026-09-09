@@ -190,7 +190,7 @@ UPROGS=\
     $U/_nsh\
     $U/_ps\
     $U/_ps_test\
-#   $U/_schedtest\
+    $U/_schedtest\
 
 $U/fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs $U/fs.img README $(UPROGS)
