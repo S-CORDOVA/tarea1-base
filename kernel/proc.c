@@ -324,6 +324,22 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
+
+static struct proc*
+pick_next(int priority, int *cursor){
+  struct proc *p;
+  int i, index;
+  for(i=0; i<NPROC; i++){
+    index = (*cursor +i)%NPROC;
+    p = &ptable.proc[index];
+    if(p->state == RUNNABLE && p->priority == priority){
+      *cursor =(index +1)%NPROC;
+      return p;
+    }
+  }
+  return 0;
+}
+
 void
 scheduler(void)
 {
@@ -331,6 +347,9 @@ scheduler(void)
   struct cpu *c = mycpu();
   c->proc = 0;
   
+  int next_high = 0;
+  int next_low = 0;
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -339,26 +358,21 @@ scheduler(void)
     // round-robin within each MLFQ level.
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+    p= pick_next(MLFQ_HIGH, &next_high);
+    if (p==0){
+      p= pick_next(MLFQ_LOW, &next_low);
+    }
+    
+    if(p!=0){
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -521,7 +535,7 @@ getprocs(struct procinfo *buf, int max)
     buf[n].sz = p->sz;
     buf[n].rtime = p->rtime;
     buf[n].wtime = p->wtime;
-    buf[n].priority = 0;
+    buf[n].priority = p->priority;
 
     safestrcpy(buf[n].name, p->name, PROC_NAME_LEN);
 
