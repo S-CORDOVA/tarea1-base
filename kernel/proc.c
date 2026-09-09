@@ -470,6 +470,8 @@ wakeup1(void *chan)
     if(p->state == SLEEPING && p->chan == chan){
       p->state = RUNNABLE;
       // TODO(Part 2): promote p to MLFQ_HIGH and reset its quantum.
+      p->priority = MLFQ_HIGH;
+      p->slice_ticks = 0;
     }
 }
 
