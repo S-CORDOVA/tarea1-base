@@ -34,8 +34,8 @@ OBJS = \
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf
-TOOLPREFIX = i386-elf-
-
+#TOOLPREFIX = i386-elf-
+TOOLPREFIX=
 # Using native tools (e.g., on X86 Linux)
 #TOOLPREFIX = 
 
@@ -81,7 +81,7 @@ AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-CFLAGS = -I./kernel -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer #-Werror
+CFLAGS = -I./kernel -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer -mno-sse -mno-sse2 -mno-mmx -mno-3dnow #-Werror
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -I./kernel -m32 -gdwarf-2 -Wa,-divide 
 # FreeBSD ld wants ``elf_i386_fbsd''
