@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "procinfo.h"
 
 int
 sys_fork(void)
@@ -88,4 +89,31 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+int
+sys_getprocs(void)
+{
+  struct procinfo *buf;
+  int max;
+  int bytes;
+
+  if(argint(1, &max) < 0)
+    return -1;
+
+  if(max < 0)
+    return -1;
+
+  if(max == 0)
+    return 0;
+
+  if(max > 0x7fffffff / (int)sizeof(struct procinfo))
+    return -1;
+
+  bytes = max * sizeof(struct procinfo);
+
+  if(argptr(0, (char**)&buf, bytes) < 0)
+    return -1;
+
+  return getprocs(buf, max);
 }

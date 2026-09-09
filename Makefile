@@ -185,11 +185,12 @@ UPROGS=\
 	$U/_stressfs\
 	$U/_usertests\
 	$U/_wc\
-	$U/_zombie\
-	$U/_testsh\
-	$U/_nsh\
-#	$U/_ps_test\
-#	$U/_schedtest\
+    $U/_zombie\
+    $U/_testsh\
+    $U/_nsh\
+    $U/_ps\
+    $U/_ps_test\
+#   $U/_schedtest\
 
 $U/fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs $U/fs.img README $(UPROGS)

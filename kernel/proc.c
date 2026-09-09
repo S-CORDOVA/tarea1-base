@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "procinfo.h"
 
 struct {
   struct spinlock lock;
@@ -498,6 +499,36 @@ updateproctimes(void)
   }
 
   release(&ptable.lock);
+}
+
+int
+getprocs(struct procinfo *buf, int max)
+{
+  struct proc *p;
+  int n = 0;
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC] && n < max; p++){
+    if(p->state == UNUSED)
+      continue;
+
+    buf[n].pid = p->pid;
+    buf[n].ppid = p->parent ? p->parent->pid : 0;
+    buf[n].state = p->state;
+    buf[n].sz = p->sz;
+    buf[n].rtime = p->rtime;
+    buf[n].wtime = p->wtime;
+    buf[n].priority = 0;
+
+    safestrcpy(buf[n].name, p->name, PROC_NAME_LEN);
+
+    n++;
+  }
+
+  release(&ptable.lock);
+
+  return n;
 }
 
 // Called from the timer interrupt, without ptable.lock held.
