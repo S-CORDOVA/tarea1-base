@@ -358,9 +358,9 @@ scheduler(void)
     // round-robin within each MLFQ level.
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    p= pick_next(MLFQ_HIGH, &next_high);
-    if (p==0){
-      p= pick_next(MLFQ_LOW, &next_low);
+    p = pick_next(MLFQ_HIGH, &next_high);
+    if (p == 0){
+      p = pick_next(MLFQ_LOW, &next_low);
     }
     
     if(p!=0){
